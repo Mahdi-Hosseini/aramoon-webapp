@@ -13,21 +13,25 @@ import {
 } from 'react-native';
 import { useAuth } from '../../../context/AuthContext'; // Import useAuth
 
-// Replace with your actual API endpoint
-//const API_ENDPOINT = 'http://localhost:8000/api/v1/chat'; // Corrected endpoint
-
-// API endpoint - use computer IP for mobile devices, localhost for web
+// API endpoint - read from environment variables
 const getApiEndpoint = () => {
   if (Platform.OS === 'web') {
-    return 'http://localhost:8000/api/v1/chat';
+    return process.env.EXPO_PUBLIC_API_BASE_URL_WEB + '/chat' || 'http://localhost:8000/api/v1/chat';
   } else {
-    // For mobile, try the computer's IP first, then fallback to localhost if needed
-    return 'http://172.20.10.9:8000/api/v1/chat';
+    // For mobile, use the mobile API URL from environment variables
+    return process.env.EXPO_PUBLIC_API_BASE_URL_MOBILE + '/chat' || 'http://172.20.10.9:8000/api/v1/chat';
   }
 };
 
 const API_ENDPOINT = getApiEndpoint();
 const API_BASE = API_ENDPOINT.replace('/chat', '');
+
+// Debug logging for API configuration
+console.log(`🔧 [${Platform.OS.toUpperCase()}] API CONFIGURATION:`);
+console.log(`   Web API Base: ${process.env.EXPO_PUBLIC_API_BASE_URL_WEB || 'NOT CONFIGURED'}`);
+console.log(`   Mobile API Base: ${process.env.EXPO_PUBLIC_API_BASE_URL_MOBILE || 'NOT CONFIGURED'}`);
+console.log(`   Current API Endpoint: ${API_ENDPOINT}`);
+console.log(`   Current API Base: ${API_BASE}`);
 
 // Add timeout configuration for mobile devices
 const FETCH_TIMEOUT = 30000; // 30 seconds timeout
