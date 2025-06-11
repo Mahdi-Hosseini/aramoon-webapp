@@ -1,6 +1,36 @@
 import os
 from typing import Optional
 from pydantic_settings import BaseSettings
+from pathlib import Path
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+
+# Function to find and load .env file from multiple possible locations
+def load_environment_variables():
+    """Load environment variables from .env file, trying multiple locations"""
+    current_dir = Path(__file__).parent
+    
+    # Check multiple possible locations for .env file
+    possible_env_paths = [
+        current_dir.parent.parent.parent / ".env",  # Root directory (most likely)
+        current_dir.parent.parent / ".env",         # app directory
+        current_dir.parent / ".env",                # chat-bot directory
+        current_dir / ".env",                       # backend directory
+        Path.cwd() / ".env",                        # Current working directory
+    ]
+    
+    for env_path in possible_env_paths:
+        if env_path.exists():
+            load_dotenv(dotenv_path=env_path, override=True)
+            return env_path
+    
+    # If no .env file found, load from environment variables only
+    load_dotenv(override=True)
+    return None
+
+# Load environment variables
+env_file_path = load_environment_variables()
 
 
 class Settings(BaseSettings):
@@ -38,7 +68,7 @@ class Settings(BaseSettings):
     max_conversations_per_user: int = 20
     
     class Config:
-        env_file = ".env"
+        env_file = str(env_file_path) if env_file_path else None
         case_sensitive = False
 
 

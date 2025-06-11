@@ -11,15 +11,14 @@ from pathlib import Path
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
-# Load environment variables
-from dotenv import load_dotenv
-load_dotenv()
+# Environment variables are loaded in config.py
 
 def main():
     """Main startup function"""
     try:
         import uvicorn
         from config import settings
+        
         
         print("🤖 Starting Chatbot Backend API...")
         print(f"📍 Host: {settings.host}")
