@@ -1,4 +1,14 @@
-from jose import JWTError, jwt
+try:
+    from jose import JWTError, jwt
+except ImportError:
+    # Fallback for different jose package installations
+    try:
+        from python_jose import JWTError, jwt
+    except ImportError:
+        # Use PyJWT as another fallback
+        import jwt
+        from jwt import PyJWTError as JWTError
+        
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from config import settings

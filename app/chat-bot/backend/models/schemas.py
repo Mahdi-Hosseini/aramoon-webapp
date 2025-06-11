@@ -65,7 +65,7 @@ class MessageResponse(MessageBase):
     updated_at: datetime
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ConversationResponse(ConversationBase):
@@ -78,7 +78,7 @@ class ConversationResponse(ConversationBase):
     entity_memory: Optional[Dict[str, Any]] = {}
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ConversationWithMessagesResponse(ConversationResponse):
@@ -102,7 +102,7 @@ class EntityMemoryResponse(BaseModel):
     updated_at: datetime
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ConversationSummaryResponse(BaseModel):
@@ -113,7 +113,7 @@ class ConversationSummaryResponse(BaseModel):
     created_at: datetime
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Error models
