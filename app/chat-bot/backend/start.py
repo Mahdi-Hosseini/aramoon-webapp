@@ -29,12 +29,12 @@ def main():
         print("-" * 50)
         
         uvicorn.run(
-            "main:app",
-            host=settings.host,
-            port=settings.port,
-            reload=settings.debug,
-            log_level="info"
-        )
+    "app.chat-bot.backend.main:app",
+    host=settings.host,
+    port=settings.port,
+    reload=settings.debug,
+    log_level="info"
+)
         
     except ImportError as e:
         print(f"❌ Import error: {e}")
