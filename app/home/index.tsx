@@ -1,15 +1,18 @@
 import { useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import {
-    Dimensions,
-    Image,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Dimensions,
+  Image,
+  Modal,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native'
 import { useAuth } from '../../context/AuthContext'
+import { useLanguage } from '../../context/LanguageContext'
 import { supabase } from '../../utils/supabase'
 
 const { width, height } = Dimensions.get('window');
@@ -34,12 +37,16 @@ const HealthStatusBox = ({ title, value }: { title: string; value: string | numb
 export default function HomePage() {
   const router = useRouter()
   const { user, signOut, isLoading, session } = useAuth()
+  const { t } = useLanguage()
   
   // State for baby health data
   const [babyHealthData, setBabyHealthData] = useState<BabyHealthData | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [healthDataLoading, setHealthDataLoading] = useState(true)
   const [connectionError, setConnectionError] = useState<string | null>(null)
+  
+  // State for menu dropdown
+  const [showMenu, setShowMenu] = useState(false)
 
   // Function to fetch current baby health data
   const fetchCurrentHealthData = async () => {
@@ -172,7 +179,7 @@ export default function HomePage() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
+        <Text>{t.loading}</Text>
       </View>
     )
   }
@@ -195,44 +202,89 @@ export default function HomePage() {
           <Text style={styles.headerTitle}>Aramoon</Text>
         </View>
         <View style={styles.headerButtons}>
-          <TouchableOpacity style={styles.addDeviceButton} onPress={handleAddDevice}>
-            <Text style={styles.addDeviceText}>Add Device</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-            <Text style={styles.signOutText}>Sign Out</Text>
+          <TouchableOpacity 
+            style={styles.menuButton} 
+            onPress={() => setShowMenu(true)}
+          >
+            <Text style={styles.menuText}>{t.menu}</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Menu Dropdown Modal */}
+      <Modal
+        visible={showMenu}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowMenu(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowMenu(false)}
+        >
+          <View style={styles.menuDropdown}>
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => {
+                setShowMenu(false)
+                handleAddDevice()
+              }}
+            >
+              <Text style={styles.menuItemText}>{t.addDevice}</Text>
+            </TouchableOpacity>
+            <View style={styles.menuSeparator} />
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => {
+                setShowMenu(false)
+                                  router.push('../settings')
+              }}
+            >
+              <Text style={styles.menuItemText}>{t.settings}</Text>
+            </TouchableOpacity>
+            <View style={styles.menuSeparator} />
+            <TouchableOpacity 
+              style={styles.menuItem} 
+              onPress={() => {
+                setShowMenu(false)
+                handleSignOut()
+              }}
+            >
+              <Text style={styles.menuItemText}>{t.signOut}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Main Content */}
       <View style={styles.content}>
         {/* Welcome Section */}
         <View style={styles.welcomeContainer}>
-          <Text style={styles.welcomeTitle}>Welcome Back!</Text>
-          <Text style={styles.welcomeSubtitle}>{user.email}</Text>
+          <Text style={styles.welcomeTitle}>{t.welcomeBack}</Text>
         </View>
 
         {/* Baby Health Status Section */}
         <View style={styles.healthSection}>
-          <Text style={styles.sectionTitle}>Baby's Current Status</Text>
+          <Text style={styles.sectionTitle}>{t.babyCurrentStatus}</Text>
           
           {/* Always show health boxes, just update their values */}
           <View style={styles.healthGrid}>
             <HealthStatusBox 
-              title="Respiration Rate" 
-              value={babyHealthData ? `${babyHealthData.respiration_rate} bpm` : (healthDataLoading ? "Loading..." : "No data")}
+              title={t.respirationRate} 
+              value={babyHealthData ? `${babyHealthData.respiration_rate} bpm` : (healthDataLoading ? t.loading : t.noData)}
             />
             <HealthStatusBox 
-              title="Breathing" 
-              value={babyHealthData ? babyHealthData.respiration_condition : (healthDataLoading ? "Loading..." : "No data")}
+              title={t.breathing} 
+              value={babyHealthData ? babyHealthData.respiration_condition : (healthDataLoading ? t.loading : t.noData)}
             />
             <HealthStatusBox 
-              title="Posture" 
-              value={babyHealthData ? babyHealthData.posture : (healthDataLoading ? "Loading..." : "No data")}
+              title={t.posture} 
+              value={babyHealthData ? babyHealthData.posture : (healthDataLoading ? t.loading : t.noData)}
             />
             <HealthStatusBox 
-              title="Sleep Status" 
-              value={babyHealthData ? babyHealthData.sleep_condition : (healthDataLoading ? "Loading..." : "No data")}
+              title={t.sleepStatus} 
+              value={babyHealthData ? babyHealthData.sleep_condition : (healthDataLoading ? t.loading : t.noData)}
             />
           </View>
 
@@ -245,7 +297,7 @@ export default function HomePage() {
           
           {lastUpdated && !connectionError && (
             <Text style={styles.lastUpdated}>
-              Last updated: {lastUpdated.toLocaleTimeString()}
+              {t.lastUpdated}: {lastUpdated.toLocaleTimeString()}
             </Text>
           )}
         </View>
@@ -256,16 +308,16 @@ export default function HomePage() {
             style={[styles.actionCard, styles.chatCard]}
             onPress={handleChatBot}
           >
-            <Text style={styles.actionTitle}>AI Assistant</Text>
-            <Text style={styles.actionSubtitle}>Get instant help and guidance</Text>
+            <Text style={styles.actionTitle}>{t.aiAssistant}</Text>
+            <Text style={styles.actionSubtitle}>{t.getInstantHelp}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={[styles.actionCard, styles.deviceCard]}
             onPress={() => router.push('/devices')}
           >
-            <Text style={styles.actionTitle}>Your Devices</Text>
-            <Text style={styles.actionSubtitle}>Manage connected devices</Text>
+            <Text style={styles.actionTitle}>{t.yourDevices}</Text>
+            <Text style={styles.actionSubtitle}>{t.manageConnectedDevices}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -310,50 +362,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   appIcon: {
-    width: 48,
-    height: 48,
+    width: 104,
+    height: 104,
     marginRight: 16,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '800',
     color: '#A183BF',
+    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+    letterSpacing: 0.5,
   },
   headerButtons: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  signOutButton: {
-    paddingVertical: 12,
+  menuButton: {
+    paddingVertical: 10,
     paddingHorizontal: 18,
+    backgroundColor: '#A183BF20',
     borderRadius: 25,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#A183BF',
-  },
-  signOutText: {
-    color: '#A183BF',
-    fontWeight: '700',
-    fontSize: 16,
-  },
-  addDeviceButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    marginRight: 12,
-    backgroundColor: '#A183BF',
-    borderRadius: 25,
     shadowColor: '#A183BF',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 4,
+    elevation: 3,
   },
-  addDeviceText: {
-    color: '#fff',
-    fontWeight: '700',
+  menuText: {
     fontSize: 16,
+    color: '#A183BF',
+    fontWeight: '600',
   },
   content: {
     flex: 1,
@@ -362,7 +402,7 @@ const styles = StyleSheet.create({
   },
   welcomeContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 15,
   },
   welcomeTitle: {
     fontSize: 28,
@@ -527,5 +567,40 @@ const styles = StyleSheet.create({
      color: '#6b7280',
      textAlign: 'center',
      lineHeight: 20,
+   },
+   modalOverlay: {
+     flex: 1,
+     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+     justifyContent: 'flex-start',
+     alignItems: 'flex-end',
+   },
+   menuDropdown: {
+     backgroundColor: '#fff',
+     borderRadius: 12,
+     padding: 8,
+     marginTop: 80,
+     marginRight: 20,
+     minWidth: 150,
+     shadowColor: '#000',
+     shadowOffset: { width: 0, height: 4 },
+     shadowOpacity: 0.15,
+     shadowRadius: 12,
+     elevation: 8,
+   },
+   menuItem: {
+     padding: 16,
+     width: '100%',
+     alignItems: 'center',
+   },
+   menuItemText: {
+     fontSize: 16,
+     fontWeight: '600',
+     color: '#1f2937',
+   },
+   menuSeparator: {
+     height: 1,
+     backgroundColor: '#e5e7eb',
+     width: '100%',
+     marginVertical: 4,
    },
  })  

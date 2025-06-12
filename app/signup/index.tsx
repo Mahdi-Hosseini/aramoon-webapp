@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react'
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  ActivityIndicator,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView
-} from 'react-native'
 import { useRouter } from 'expo-router'
-import { supabase } from '../../utils/supabase'
+import React, { useEffect, useState } from 'react'
+import {
+    ActivityIndicator,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native'
 import { useAuth } from '../../context/AuthContext'
+import { useLanguage } from '../../context/LanguageContext'
+import { supabase } from '../../utils/supabase'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
@@ -23,6 +25,7 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const { user } = useAuth()
+  const { t } = useLanguage()
   
   // Redirect to home if already logged in
   useEffect(() => {
@@ -33,17 +36,17 @@ export default function SignUpPage() {
 
   const handleSignUp = async () => {
     if (!email || !password) {
-      setError('Please enter both email and password')
+      setError(t.pleaseEnterBoth)
       return
     }
     
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(t.passwordsDontMatch)
       return
     }
     
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError(t.passwordTooShort)
       return
     }
     
@@ -59,7 +62,7 @@ export default function SignUpPage() {
       if (error) throw error
       
       // Show success message
-      alert('Registration successful! Please check your email to confirm your account.')
+      alert(t.registrationSuccessful)
       router.push('/login')
     } catch (error: any) {
       setError(error.message)
@@ -75,13 +78,20 @@ export default function SignUpPage() {
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.logoContainer}>
+            <View style={styles.logoPlaceholder}>
+              <Image source={require('../../assets/images/main.png')} style={styles.logoImage} resizeMode="contain" />
+            </View>
+            <Text style={styles.appName}>Aramoon</Text>
+          </View>
+
           <View style={styles.formContainer}>
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Sign up to get started with Manna</Text>
+            <Text style={styles.title}>{t.createAccount}</Text>
+            <Text style={styles.subtitle}>{t.signupToGetStarted}</Text>
             
             <TextInput
               style={styles.input}
-              placeholder="Email address"
+              placeholder={t.emailAddress}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -90,7 +100,7 @@ export default function SignUpPage() {
             
             <TextInput
               style={styles.input}
-              placeholder="Password"
+              placeholder={t.password}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -98,7 +108,7 @@ export default function SignUpPage() {
             
             <TextInput
               style={styles.input}
-              placeholder="Confirm Password"
+              placeholder={t.confirmPassword}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
@@ -114,14 +124,14 @@ export default function SignUpPage() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Sign Up</Text>
+                <Text style={styles.buttonText}>{t.signUp}</Text>
               )}
             </TouchableOpacity>
 
             <View style={styles.loginContainer}>
-              <Text style={styles.loginText}>Already have an account?</Text>
+              <Text style={styles.loginText}>{t.alreadyHaveAccount}</Text>
               <TouchableOpacity onPress={() => router.push('/login')}>
-                <Text style={styles.loginLink}>Sign in</Text>
+                <Text style={styles.loginLink}>{t.signIn}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -134,7 +144,7 @@ export default function SignUpPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#A183BF10',
   },
   keyboardView: {
     flex: 1,
@@ -143,6 +153,36 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     justifyContent: 'center',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  logoPlaceholder: {
+    width: 100,
+    height: 100,
+    borderWidth: 2,
+    borderColor: '#A183BF',
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  logoImage: {
+    width: '80%',
+    height: '80%',
+  },
+  appName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginTop: 10,
+    color: '#A183BF',
   },
   formContainer: {
     flex: 1,
@@ -155,31 +195,41 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#1a1a1a',
+    color: '#1f2937',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#6b7280',
     marginBottom: 30,
   },
   input: {
     backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   button: {
-    backgroundColor: '#4f46e5',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: '#A183BF',
+    padding: 16,
+    borderRadius: 30,
     alignItems: 'center',
     marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
   },
   errorText: {
@@ -193,11 +243,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   loginText: {
-    color: '#666',
+    color: '#6b7280',
     marginRight: 5,
   },
   loginLink: {
-    color: '#4f46e5',
+    color: '#A183BF',
     fontWeight: '600',
   },
 }) 

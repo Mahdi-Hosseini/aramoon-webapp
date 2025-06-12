@@ -1,17 +1,18 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Modal,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Modal,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { supabase } from '../../utils/supabase';
 
 // Define proper TypeScript interfaces for our data structures
@@ -38,6 +39,7 @@ export default function DevicesPage() {
   const [deviceToDisconnect, setDeviceToDisconnect] = useState<{deviceId: string, id: number} | null>(null);
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -234,7 +236,7 @@ export default function DevicesPage() {
           disconnectDevice(item.device_id, item.id);
         }}
       >
-        <Text style={styles.disconnectText}>Disconnect</Text>
+        <Text style={styles.disconnectText}>{t.disconnect}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -243,11 +245,11 @@ export default function DevicesPage() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
+          <Text style={styles.backButtonText}>← {t.back}</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Devices</Text>
+        <Text style={styles.headerTitle}>{t.myDevices}</Text>
         <TouchableOpacity onPress={() => router.push('/add-device')} style={styles.addButton}>
-          <Text style={styles.addButtonText}>+ Add</Text>
+          <Text style={styles.addButtonText}>+ {t.addDevice}</Text>
         </TouchableOpacity>
       </View>
 
@@ -272,12 +274,12 @@ export default function DevicesPage() {
           />
         ) : (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No devices connected yet</Text>
+            <Text style={styles.emptyText}>{t.noDevicesConnected}</Text>
             <TouchableOpacity
               style={styles.addDeviceButton}
               onPress={() => router.push('/add-device')}
             >
-              <Text style={styles.addDeviceText}>Add a Device</Text>
+              <Text style={styles.addDeviceText}>{t.addADevice}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -292,22 +294,22 @@ export default function DevicesPage() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Disconnect Device</Text>
+            <Text style={styles.modalTitle}>{t.disconnectDevice}</Text>
             <Text style={styles.modalMessage}>
-              Are you sure you want to disconnect this device?
+              {t.disconnectConfirm}
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={handleCancelDisconnect}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t.cancel}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.confirmButton]}
                 onPress={handleConfirmDisconnect}
               >
-                <Text style={styles.confirmButtonText}>Disconnect</Text>
+                <Text style={styles.confirmButtonText}>{t.disconnect}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -320,7 +322,7 @@ export default function DevicesPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#A183BF10',
   },
   header: {
     flexDirection: 'row',
@@ -332,30 +334,32 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: '#1f2937',
   },
   backButton: {
     padding: 8,
   },
   backButtonText: {
-    color: '#4f46e5',
+    color: '#A183BF',
     fontWeight: '600',
+    fontSize: 16,
   },
   addButton: {
     padding: 8,
   },
   addButtonText: {
-    color: '#4f46e5',
+    color: '#A183BF',
     fontWeight: '600',
+    fontSize: 16,
   },
   content: {
     flex: 1,
@@ -371,17 +375,17 @@ const styles = StyleSheet.create({
   },
   deviceItem: {
     backgroundColor: '#fff',
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -392,28 +396,33 @@ const styles = StyleSheet.create({
   deviceName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: '#1f2937',
     marginBottom: 4,
   },
   deviceId: {
     fontSize: 14,
-    color: '#666',
+    color: '#6b7280',
     marginBottom: 2,
   },
   deviceDate: {
     fontSize: 12,
-    color: '#999',
+    color: '#9ca3af',
   },
   disconnectButton: {
     backgroundColor: '#fee2e2',
     paddingVertical: 10,
     paddingHorizontal: 16,
-    borderRadius: 6,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#fecaca',
     minWidth: 80,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   disconnectText: {
     color: '#dc2626',
@@ -427,16 +436,21 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
+    color: '#6b7280',
     marginBottom: 20,
   },
   addDeviceButton: {
-    backgroundColor: '#4f46e5',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: '#A183BF',
+    padding: 16,
+    borderRadius: 30,
     alignItems: 'center',
     width: '100%',
     maxWidth: 200,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   addDeviceText: {
     color: '#fff',
@@ -452,29 +466,35 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 20,
     width: '80%',
     maxWidth: 300,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: '#1f2937',
     marginBottom: 10,
   },
   modalMessage: {
     fontSize: 14,
-    color: '#666',
+    color: '#6b7280',
     marginBottom: 20,
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 10,
   },
   modalButton: {
-    padding: 10,
-    borderRadius: 6,
-    backgroundColor: '#4f46e5',
+    flex: 1,
+    padding: 12,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -489,7 +509,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   confirmButton: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#A183BF',
   },
   confirmButtonText: {
     color: '#fff',

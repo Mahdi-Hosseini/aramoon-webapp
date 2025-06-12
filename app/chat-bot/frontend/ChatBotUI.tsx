@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useAuth } from '../../../context/AuthContext'; // Import useAuth
+import { useLanguage } from '../../../context/LanguageContext'; // Import useLanguage
 
 // API endpoint - read from environment variables
 const getApiEndpoint = () => {
@@ -134,6 +135,7 @@ export default function ChatBotUI() {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const flatListRef = useRef<FlatList<Message>>(null);
   const { session } = useAuth(); // Get session from AuthContext
+  const { t } = useLanguage();
 
   // Function to scroll to the bottom of the message list
   const scrollToBottom = () => {
@@ -502,13 +504,13 @@ export default function ChatBotUI() {
 
   const renderMessage = ({ item }: { item: Message }) => (
     <View style={[
-      styles.messageBubble,
-      item.sender === 'user' ? styles.userMessage : styles.botMessage
+      styles.messageBubble as any,
+      item.sender === 'user' ? styles.userMessage as any : styles.botMessage as any
     ]}>
-      <Text style={item.sender === 'user' ? styles.userMessageText : styles.botMessageText}>
+      <Text style={(item.sender === 'user' ? styles.userMessageText : styles.botMessageText) as any}>
         {item.text}
       </Text>
-      <Text style={styles.timestampText}>
+      <Text style={styles.timestampText as any}>
         {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </Text>
     </View>
@@ -520,9 +522,9 @@ export default function ChatBotUI() {
       {session && (
         <View style={styles.conversationListContainer}>
           <View style={styles.conversationHeader}>
-            <Text style={styles.conversationHeaderText}>Conversations</Text>
+            <Text style={styles.conversationHeaderText}>{t.conversations}</Text>
             <TouchableOpacity onPress={handleNewChat} style={styles.newChatButton}>
-              <Text style={styles.newChatButtonText}>+ New Chat</Text>
+              <Text style={styles.newChatButtonText}>{t.newChat}</Text>
             </TouchableOpacity>
           </View>
           {isLoadingConversations ? (
@@ -539,11 +541,11 @@ export default function ChatBotUI() {
                   ]}
                   onPress={() => loadConversation(item.id)}
                 >
-                  <Text style={styles.conversationTitle} numberOfLines={1}>{item.title || "Untitled Chat"}</Text>
+                  <Text style={styles.conversationTitle} numberOfLines={1}>{item.title || t.untitledChat}</Text>
                   <TouchableOpacity 
                     style={styles.deleteButton}
                     onPress={(e) => { 
-                      e.stopPropagation(); // Prevent triggering loadConversation
+                      e.stopPropagation();
                       handleDeleteConversation(item.id); 
                     }}
                   >
@@ -551,11 +553,11 @@ export default function ChatBotUI() {
                   </TouchableOpacity>
                 </TouchableOpacity>
               )}
-              horizontal={false} // Make it a vertical list
+              horizontal={false}
               showsVerticalScrollIndicator={true}
             />
           ) : (
-            <Text style={styles.noConversationsText}>No conversations yet. Start a new chat!</Text>
+            <Text style={styles.noConversationsText}>{t.noConversationsYet}</Text>
           )}
         </View>
       )}
@@ -563,7 +565,7 @@ export default function ChatBotUI() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingContainer}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0} // Adjust as needed
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         <FlatList
           ref={flatListRef}
@@ -572,13 +574,13 @@ export default function ChatBotUI() {
           keyExtractor={item => item.id}
           style={styles.messageList}
           contentContainerStyle={styles.messageListContent}
-          onContentSizeChange={scrollToBottom} // Ensure scroll on new messages
-          onLayout={scrollToBottom} // Ensure scroll on initial layout
+          onContentSizeChange={scrollToBottom}
+          onLayout={scrollToBottom}
         />
         {isLoading && (
           <View style={styles.loadingIndicatorContainer}>
             <ActivityIndicator size="small" color="#4f46e5" />
-            <Text style={styles.loadingText}>Bot is thinking...</Text>
+            <Text style={styles.loadingText}>{t.botThinking}</Text>
           </View>
         )}
         <View style={styles.inputContainer}>
@@ -586,7 +588,7 @@ export default function ChatBotUI() {
             style={styles.input}
             value={inputText}
             onChangeText={setInputText}
-            placeholder="Type your message..."
+            placeholder={t.typeYourMessage}
             placeholderTextColor="#999"
             multiline
             editable={!isLoading}
@@ -596,7 +598,7 @@ export default function ChatBotUI() {
             onPress={handleSendMessage} 
             disabled={isLoading}
           >
-            <Text style={styles.sendButtonText}>Send</Text>
+            <Text style={styles.sendButtonText}>{t.send}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -607,167 +609,233 @@ export default function ChatBotUI() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#A183BF10',
+    flexDirection: Platform.OS === 'web' ? 'row' : 'column',
+    height: Platform.OS === 'web' ? '100vh' : undefined,
   },
   // Styles for Conversation List
   conversationListContainer: {
-    paddingHorizontal: 10,
-    paddingTop: 10,
-    paddingBottom: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    maxHeight: '30%', // Limit height of conversation list
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
+    borderBottomWidth: Platform.OS === 'web' ? 0 : 1,
+    borderRightWidth: Platform.OS === 'web' ? 1 : 0,
+    borderBottomColor: '#e5e7eb',
+    borderRightColor: '#e5e7eb',
+    maxHeight: Platform.OS === 'web' ? '100%' : '25%',
+    minHeight: Platform.OS === 'web' ? '100%' : undefined,
+    width: Platform.OS === 'web' ? 300 : '100%',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 4,
   },
   conversationHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   conversationHeaderText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#1f2937',
   },
   newChatButton: {
-    backgroundColor: '#4f46e5',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 15,
+    backgroundColor: '#A183BF',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   newChatButtonText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   conversationItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
     marginBottom: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   currentConversationItem: {
-    backgroundColor: '#e0e7ff', // Light indigo to highlight current
-    borderColor: '#4f46e5',
+    backgroundColor: '#A183BF20',
+    borderColor: '#A183BF',
+    shadowColor: '#A183BF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   conversationTitle: {
     fontSize: 15,
-    color: '#333',
-    flex: 1, // Allow title to take space but be shrinkable
-    marginRight: 10, // Space before delete button
+    color: '#1f2937',
+    flex: 1,
+    marginRight: 12,
+    fontWeight: '500',
   },
   deleteButton: {
-    padding: 5,
-    // backgroundColor: '#ef4444', // Optional: for a red background
-    // borderRadius: 10,
+    padding: 6,
+    borderRadius: 12,
+    backgroundColor: '#fee2e2',
   },
   deleteButtonText: {
-    color: '#ef4444', // Red color for delete icon
-    fontSize: 16,
+    color: '#dc2626',
+    fontSize: 14,
     fontWeight: 'bold',
   },
   noConversationsText: {
     textAlign: 'center',
-    color: '#777',
-    paddingVertical: 10,
+    color: '#6b7280',
+    paddingVertical: 20,
     fontStyle: 'italic',
+    fontSize: 15,
   },
   keyboardAvoidingContainer: {
     flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    height: Platform.OS === 'web' ? '100%' : undefined,
   },
   messageList: {
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
   },
   messageListContent: {
-    paddingTop: 10,
-    paddingBottom: 10, // Add padding to bottom to not be overlapped by input
+    paddingTop: 16,
+    paddingBottom: 16,
+    ...(Platform.OS === 'web' && { minHeight: 'calc(100vh - 200px)' as any }),
   },
   messageBubble: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    marginBottom: 10,
-    maxWidth: '80%',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 18,
+    marginBottom: 12,
+    maxWidth: '75%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   userMessage: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#A183BF',
     alignSelf: 'flex-end',
-    marginRight: 5,
+    marginRight: 8,
   },
   botMessage: {
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#f3f4f6',
     alignSelf: 'flex-start',
-    marginLeft: 5,
+    marginLeft: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   userMessageText: {
     fontSize: 16,
     color: '#fff',
+    lineHeight: 22,
   },
   botMessageText: {
     fontSize: 16,
-    color: '#000',
+    color: '#1f2937',
+    lineHeight: 22,
   },
   timestampText: {
-    fontSize: 10,
-    color: '#888',
+    fontSize: 11,
+    color: '#9ca3af',
     alignSelf: 'flex-end',
-    marginTop: 4,
+    marginTop: 6,
   },
   inputContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    alignItems: 'flex-end',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    borderTopColor: '#e5e7eb',
     backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 4,
   },
   input: {
     flex: 1,
-    minHeight: 40,
-    maxHeight: 120, // Allow for multiple lines but not excessive height
-    borderColor: '#ccc',
+    minHeight: 44,
+    maxHeight: 120,
+    borderColor: '#e5e7eb',
     borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginRight: 10,
-    backgroundColor: '#fff',
+    borderRadius: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginRight: 12,
+    backgroundColor: '#f9fafb',
     fontSize: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   sendButton: {
-    backgroundColor: '#4f46e5',
-    paddingVertical: 10,
+    backgroundColor: '#A183BF',
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 20,
-    height: 40, // Match minHeight of input for alignment
+    borderRadius: 22,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   sendButtonDisabled: {
-    backgroundColor: '#a9a5f5', // Lighter shade when disabled
+    backgroundColor: '#A183BF80',
   },
   sendButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
     fontSize: 16,
   },
   loadingIndicatorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
+    paddingVertical: 12,
+    backgroundColor: '#A183BF10',
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 8,
   },
   loadingText: {
-    marginLeft: 8,
+    marginLeft: 10,
     fontSize: 14,
-    color: '#4f46e5',
+    color: '#A183BF',
+    fontWeight: '500',
   },
 }); 

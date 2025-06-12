@@ -3,14 +3,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
-    Dimensions,
-    FlatList,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Dimensions,
+  FlatList,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
@@ -23,46 +24,46 @@ interface OnboardingSlide {
   color: string;
 }
 
-const slides: OnboardingSlide[] = [
-    {
-      id: '1',
-      title: 'Infant Breathing Monitoring',
-      subtitle: 'Stay Aware, Even While Asleep',
-      description: 'Aramoon continuously tracks your baby’s breathing via abdominal motion and alerts you in case of apnea or abnormal pauses — even when offline.',
-      icon: 'heart-outline',
-      color: '#A183BF',
-    },
-    {
-      id: '2',
-      title: 'Position Awareness',
-      subtitle: 'Safer Sleeping Postures',
-      description: 'Using precision sensors, Aramoon monitors your baby’s sleep position and warns you if they roll into unsafe poses like lying face down.',
-      icon: 'person-outline',
-      color: '#A183BF',
-    },
-    {
-      id: '3',
-      title: 'Sleep Pattern Insights',
-      subtitle: 'For Both Mom and Baby',
-      description: 'Understand your baby’s sleep cycles and get personalized tips to help sync your rest time, promoting healthier sleep for both mother and child.',
-      icon: 'bed-outline',
-      color: '#A183BF',
-    },
-    {
-      id: '4',
-      title: 'Personalized Infant Care',
-      subtitle: 'Your Trusted Parenting Assistant',
-      description: 'Aramoon offers intelligent, on-demand guidance for common early-life concerns, providing calm reassurance and helpful answers exactly when parents need them most.',
-      icon: 'chatbox-ellipses-outline',
-      color: '#A183BF',
-    },
-  ];
-  
-
 export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const router = useRouter();
+  const { t } = useLanguage();
+
+  const slides = [
+    {
+      id: '1',
+      title: t.infantBreathing,
+      subtitle: t.stayAware,
+      description: t.breathingDescription,
+      icon: 'heart-outline' as keyof typeof Ionicons.glyphMap,
+      color: '#A183BF',
+    },
+    {
+      id: '2',
+      title: t.positionAwareness,
+      subtitle: t.saferSleeping,
+      description: t.positionDescription,
+      icon: 'person-outline' as keyof typeof Ionicons.glyphMap,
+      color: '#A183BF',
+    },
+    {
+      id: '3',
+      title: t.sleepPatternInsights,
+      subtitle: t.forBothMomBaby,
+      description: t.sleepDescription,
+      icon: 'bed-outline' as keyof typeof Ionicons.glyphMap,
+      color: '#A183BF',
+    },
+    {
+      id: '4',
+      title: t.personalizedCare,
+      subtitle: t.trustedParenting,
+      description: t.careDescription,
+      icon: 'chatbox-ellipses-outline' as keyof typeof Ionicons.glyphMap,
+      color: '#A183BF',
+    },
+  ];
 
   const handleNext = () => {
     if (currentIndex < slides.length - 1) {
@@ -104,7 +105,9 @@ export default function OnboardingScreen() {
     }
   };
 
-  const renderSlide = ({ item }: { item: OnboardingSlide }) => (
+
+
+  const renderSlide = ({ item }: { item: any }) => (
     <View style={styles.slide}>
       <View style={styles.content}>
         <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
@@ -169,7 +172,7 @@ export default function OnboardingScreen() {
                 style={[styles.getStartedButton, { backgroundColor: slides[currentIndex].color }]}
                 onPress={handleGetStarted}
               >
-                <Text style={styles.getStartedText}>Get Started</Text>
+                <Text style={styles.getStartedText}>{t.getStarted}</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -178,10 +181,10 @@ export default function OnboardingScreen() {
                 style={[styles.nextButton, { backgroundColor: slides[currentIndex].color }]}
                 onPress={handleNext}
               >
-                <Text style={styles.nextButtonText}>Next</Text>
+                <Text style={styles.nextButtonText}>{t.next}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-                <Text style={styles.skipText}>Skip</Text>
+                <Text style={styles.skipText}>{t.skip}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -201,21 +204,24 @@ const styles = StyleSheet.create({
   slide: {
     width,
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: 20,
+    paddingTop: 80,
   },
   content: {
     alignItems: 'center',
-    maxWidth: 350,
+    maxWidth: 320,
+    flex: 1,
+    justifyContent: 'center',
   },
   iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
@@ -223,30 +229,34 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#1f2937',
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   description: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#6b7280',
     textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 40,
+    lineHeight: 22,
+    marginBottom: 30,
   },
   pagination: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 20,
+    paddingVertical: 16,
+    position: 'absolute',
+    bottom: 140,
+    left: 0,
+    right: 0,
   },
   paginationDot: {
     height: 8,
@@ -254,9 +264,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   footer: {
-    paddingHorizontal: 40,
+    paddingHorizontal: 20,
     paddingBottom: 40,
     alignItems: 'center',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   buttonContainer: {
     alignItems: 'center',

@@ -1,18 +1,19 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { supabase } from '../../utils/supabase';
 
 export default function AddDevicePage() {
@@ -23,6 +24,7 @@ export default function AddDevicePage() {
   const [deviceName, setDeviceName] = useState('');
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -148,21 +150,21 @@ export default function AddDevicePage() {
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backButtonText}>← Back</Text>
+            <Text style={styles.backButtonText}>← {t.back}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Add Device</Text>
+          <Text style={styles.headerTitle}>{t.addDevice}</Text>
           <View style={styles.placeholder} />
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.title}>Connect Your Device</Text>
+          <Text style={styles.title}>{t.connectYourDevice}</Text>
           <Text style={styles.subtitle}>
-            Enter the device ID that came with your purchase
+            {t.enterDeviceId}
           </Text>
 
           <TextInput
             style={styles.input}
-            placeholder="Enter Device ID (UUID format)"
+            placeholder={t.enterDeviceIdPlaceholder}
             value={deviceId}
             onChangeText={setDeviceId}
             autoCapitalize="none"
@@ -172,7 +174,7 @@ export default function AddDevicePage() {
           {validated && isValid && (
             <View style={styles.deviceInfo}>
               <Text style={styles.deviceInfoText}>
-                Device ID verified
+                {t.deviceIdVerified}
               </Text>
             </View>
           )}
@@ -186,7 +188,7 @@ export default function AddDevicePage() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Verify Device ID</Text>
+                <Text style={styles.buttonText}>{t.verifyDeviceId}</Text>
               )}
             </TouchableOpacity>
           )}
@@ -200,7 +202,7 @@ export default function AddDevicePage() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Connect Device</Text>
+                <Text style={styles.buttonText}>{t.connectDevice}</Text>
               )}
             </TouchableOpacity>
           )}
@@ -214,7 +216,7 @@ export default function AddDevicePage() {
               }}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>Try Again</Text>
+              <Text style={styles.buttonText}>{t.tryAgain}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -226,7 +228,7 @@ export default function AddDevicePage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#A183BF10',
   },
   keyboardAvoid: {
     flex: 1,
@@ -241,23 +243,24 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: '#1f2937',
   },
   backButton: {
     padding: 8,
   },
   backButtonText: {
-    color: '#4f46e5',
+    color: '#A183BF',
     fontWeight: '600',
+    fontSize: 16,
   },
   placeholder: {
     width: 50,
@@ -269,15 +272,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#1a1a1a',
+    color: '#1f2937',
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#6b7280',
     marginBottom: 30,
     textAlign: 'center',
   },
@@ -285,37 +288,50 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: '100%',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#e5e7eb',
     fontSize: 16,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   deviceInfo: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#A183BF20',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 20,
     width: '100%',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#A183BF40',
   },
   deviceInfoText: {
     fontSize: 16,
-    color: '#065f46',
+    color: '#A183BF',
+    fontWeight: '600',
   },
   button: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#A183BF',
     width: '100%',
-    padding: 15,
-    borderRadius: 8,
+    padding: 16,
+    borderRadius: 30,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
   },
   connectButton: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#A183BF',
   },
 }); 

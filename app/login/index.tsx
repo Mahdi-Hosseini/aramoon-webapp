@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react'
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
+import { useRouter } from 'expo-router'
+import React, { useEffect, useState } from 'react'
+import {
   ActivityIndicator,
-  SafeAreaView,
+  Image,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native'
-import { useRouter } from 'expo-router'
 import { useAuth } from '../../context/AuthContext'
+import { useLanguage } from '../../context/LanguageContext'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -20,6 +22,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const { signIn, signInWithGoogle, isLoading, user } = useAuth()
+  const { t } = useLanguage()
 
   // Redirect to home if already logged in
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function LoginPage() {
 
   const handleEmailSignIn = async () => {
     if (!email || !password) {
-      setError('Please enter both email and password')
+      setError(t.pleaseEnterBoth)
       return
     }
     
@@ -64,18 +67,18 @@ export default function LoginPage() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.logoContainer}>
             <View style={styles.logoPlaceholder}>
-              <Text style={styles.logoText}>M</Text>
+              <Image source={require('../../assets/images/main.png')} style={styles.logoImage} resizeMode="contain" />
             </View>
             <Text style={styles.appName}>Aramoon</Text>
           </View>
 
           <View style={styles.formContainer}>
-            <Text style={styles.title}>Sign in</Text>
-            <Text style={styles.subtitle}>Welcome back, please sign in to continue</Text>
+            <Text style={styles.title}>{t.login}</Text>
+            <Text style={styles.subtitle}>{t.welcomeBackLogin}</Text>
             
             <TextInput
               style={styles.input}
-              placeholder="Email address"
+              placeholder={t.emailAddress}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -84,7 +87,7 @@ export default function LoginPage() {
             
             <TextInput
               style={styles.input}
-              placeholder="Password"
+              placeholder={t.password}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -100,7 +103,7 @@ export default function LoginPage() {
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Sign in</Text>
+                <Text style={styles.buttonText}>{t.login}</Text>
               )}
             </TouchableOpacity>
 
@@ -115,13 +118,13 @@ export default function LoginPage() {
               onPress={handleGoogleSignIn}
               disabled={isLoading}
             >
-              <Text style={styles.googleButtonText}>Sign in with Google</Text>
+              <Text style={styles.googleButtonText}>{t.loginWithGoogle}</Text>
             </TouchableOpacity>
 
             <View style={styles.signupContainer}>
-              <Text style={styles.signupText}>Don't have an account?</Text>
+              <Text style={styles.signupText}>{t.dontHaveAccount}</Text>
               <TouchableOpacity onPress={() => router.push('/signup')}>
-                <Text style={styles.signupLink}>Sign up</Text>
+                <Text style={styles.signupLink}>{t.signUp}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -134,7 +137,7 @@ export default function LoginPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#A183BF10',
   },
   keyboardView: {
     flex: 1,
@@ -152,21 +155,26 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderWidth: 2,
-    borderColor: '#4f46e5',
+    borderColor: '#A183BF',
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
-  logoText: {
-    fontSize: 50,
-    fontWeight: 'bold',
-    color: '#4f46e5',
+  logoImage: {
+    width: '80%',
+    height: '80%',
   },
   appName: {
     fontSize: 28,
     fontWeight: 'bold',
     marginTop: 10,
-    color: '#4f46e5',
+    color: '#A183BF',
   },
   formContainer: {
     flex: 1,
@@ -179,31 +187,41 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#1a1a1a',
+    color: '#1f2937',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#6b7280',
     marginBottom: 30,
   },
   input: {
     backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   button: {
-    backgroundColor: '#4f46e5',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: '#A183BF',
+    padding: 16,
+    borderRadius: 30,
     alignItems: 'center',
     marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
   },
   errorText: {
@@ -219,22 +237,27 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ddd',
+    backgroundColor: '#e5e7eb',
   },
   dividerText: {
     marginHorizontal: 10,
-    color: '#666',
+    color: '#6b7280',
   },
   googleButton: {
     backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
+    padding: 16,
+    borderRadius: 30,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   googleButtonText: {
-    color: '#1a1a1a',
+    color: '#1f2937',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -244,11 +267,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   signupText: {
-    color: '#666',
+    color: '#6b7280',
     marginRight: 5,
   },
   signupLink: {
-    color: '#4f46e5',
+    color: '#A183BF',
     fontWeight: '600',
   },
 }) 
